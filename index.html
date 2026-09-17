@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Feed</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>User Directory</h1>
+        <div id="user-feed" class="user-grid"></div>
+    </div>
+
+    <script>
+        const API_URL = 'https://jsonplaceholder.typicode.com/users';
+
+        async function fetchUsers() {
+            try {
+                const response = await fetch(API_URL);
+                const users = await response.json();
+                const firstSix = users.slice(0, 6);
+                
+                const feed = document.getElementById('user-feed');
+                feed.innerHTML = '';
+
+                firstSix.forEach(user => {
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.id = `user-${user.id}`;
+                    
+                    card.innerHTML = `
+                        <h3>${user.name}</h3>
+                        <p class="username">@${user.username}</p>
+                        <p class="email">${user.email}</p>
+                        <button class="remove-btn" onclick="removeUser(${user.id})">Remove User</button>
+                    `;
+                    
+                    feed.appendChild(card);
+                });
+            } catch (err) {
+                console.error('Error fetching users:', err);
+            }
+        }
+
+        async function removeUser(id) {
+            try {
+                const response = await fetch(`${API_URL}/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok || response.status === 200) {
+                    const card = document.getElementById(`user-${id}`);
+                    if (card) {
+                        card.remove();
+                    }
+                }
+            } catch (err) {
+                console.error('Error deleting user:', err);
+            }
+        }
+
+        fetchUsers();
+    </script>
+</body>
+</html>
